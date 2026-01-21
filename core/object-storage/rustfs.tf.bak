@@ -1,0 +1,35 @@
+terraform {
+  required_providers {
+    helm = {
+      source = "hashicorp/helm"
+      version = "3.1.1"
+    }
+  }
+}
+
+provider "helm" {
+  kubernetes = {
+    config_path = "~/.kube/config"
+  }
+}
+
+resource "helm_release" "object-storage" {
+  name             = "rustfs"
+  repository       = "https://charts.rustfs.com"
+  chart            = "rustfs"
+  namespace        = "${var.object_storage_namespace}"
+  create_namespace = "true"
+
+  set = [
+    {
+      name  = "ingress.className"
+      value = "traefik"
+    },
+    {
+      name  = "config.rustfs.volumes"
+      value = "${var.object_storage_disks}"
+    }
+  ]
+
+}
+
